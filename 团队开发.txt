@@ -1,3 +1,4 @@
+ddddddddddddddddd<<<<<<< .mine
 1wwwwwwwwwwwwww
 wwwwwww
 wwwwwwwwwwwwwwww
@@ -5,3 +6,12 @@ wwwwwwwwwwwwwwwwwwwww
 wwwwwww
 222222222222222
 rrrrrrrrrrrrrrrrrrrrrrrrrrrr
+=======
+5456465
+36111361113611
+zzrzzr
+
+
+
+
+>>>>>>> .theirs
