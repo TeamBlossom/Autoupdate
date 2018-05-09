@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.Menu?>
+<?import javafx.scene.control.MenuBar?>
+<?import javafx.scene.control.MenuItem?>
+<?import javafx.scene.control.TableColumn?>
+<?import javafx.scene.control.TableView?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.layout.AnchorPane?>
+
+<AnchorPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="400.0" prefWidth="600.0" xmlns="http://javafx.com/javafx/8.0.141" xmlns:fx="http://javafx.com/fxml/1" fx:controller="application.Controller">
+   <children>
+      <MenuBar layoutY="2.0" prefHeight="25.0" prefWidth="600.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+        <menus>
+          <Menu mnemonicParsing="false" text="配置文件">
+            <items>
+              <MenuItem fx:id="newConfMenuItem" mnemonicParsing="false" onAction="#newConfAction" text="新建" />
+                  <MenuItem fx:id="openConfMenuItem" mnemonicParsing="false" onAction="#openConfAction" text="浏览" />
+                  <MenuItem fx:id="exitMenuItem" mnemonicParsing="false" onAction="#exitAction" text="退出" />
+            </items>
+          </Menu>
+          <Menu mnemonicParsing="false" text="设置">
+               <items>
+                  <MenuItem fx:id="setUpdateURLMenuItem" mnemonicParsing="false" onAction="#setUpdateURLAction" text="设置网址" />
+               </items>
+          </Menu>
+          <Menu mnemonicParsing="false" text="帮助">
+               <items>
+                  <MenuItem fx:id="checkUpdateMenuItem" mnemonicParsing="false" onAction="#checkUpdateAction" text="检测更新" />
+               </items>
+          </Menu>
+        </menus>
+      </MenuBar>
+      <AnchorPane fx:id="contentPane" layoutY="27.0" prefHeight="373.0" prefWidth="600.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="27.0">
+         <children>
+            <TableView fx:id="itemTable" prefHeight="373.0" prefWidth="124.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.topAnchor="0.0">
+              <columns>
+                <TableColumn fx:id="configItemCol" prefWidth="123.0" text="配置文件列表" />
+              </columns>
+            </TableView>
+            <TableView fx:id="dateTable" layoutX="124.0" layoutY="68.0" prefHeight="255.0" prefWidth="477.0" AnchorPane.bottomAnchor="50.0" AnchorPane.leftAnchor="123.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="50.0">
+              <columns>
+                <TableColumn fx:id="nameCol" prefWidth="141.0" text="文件名称" />
+                <TableColumn fx:id="pathCol" prefWidth="170.0" text="文件路径" />
+                  <TableColumn fx:id="updateMethodCol" prefWidth="165.0" text="更新方式" />
+              </columns>
+            </TableView>
+            <TextField fx:id="version" layoutX="195.0" layoutY="14.0" prefHeight="23.0" prefWidth="79.0" AnchorPane.leftAnchor="195.0" AnchorPane.topAnchor="14.0" />
+            <Label layoutX="132.0" layoutY="18.0" prefHeight="15.0" prefWidth="54.0" text="配置版本" AnchorPane.leftAnchor="132.0" AnchorPane.topAnchor="18.0" />
+            <Button fx:id="addFileButton" layoutX="142.0" layoutY="336.0" mnemonicParsing="false" text="添加更新文件" AnchorPane.bottomAnchor="14.0" AnchorPane.leftAnchor="142.0" />
+            <Button fx:id="ensureButton" layoutX="286.0" layoutY="336.0" mnemonicParsing="false" text="保存" AnchorPane.bottomAnchor="14.0" AnchorPane.leftAnchor="286.0" />
+            <Button fx:id="cancelButton" layoutX="514.0" layoutY="336.0" mnemonicParsing="false" text="取消" AnchorPane.bottomAnchor="14.0" AnchorPane.leftAnchor="514.0" />
+            <Button fx:id="saveAsButton" layoutX="378.0" layoutY="336.0" mnemonicParsing="false" text="另存为" AnchorPane.bottomAnchor="14.0" AnchorPane.leftAnchor="378.0" />
+         </children></AnchorPane>
+   </children>
+</AnchorPane>
