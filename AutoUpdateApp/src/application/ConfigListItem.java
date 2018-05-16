@@ -8,7 +8,7 @@ import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
 
 public class ConfigListItem {
-	private Config confItem = new Config();
+//	private Config confItem = new Config();
 	private SimpleStringProperty name = new SimpleStringProperty();
 	public ConfigListItem() {
 		// TODO Auto-generated constructor stub
