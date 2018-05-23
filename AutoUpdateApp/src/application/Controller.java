@@ -13,6 +13,7 @@ import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 
 import java.net.URL;
+import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.Optional;
 import java.util.ResourceBundle;
@@ -45,10 +46,11 @@ import javafx.scene.control.ProgressBar;
 
 import javafx.scene.control.TableCell;
 import javafx.scene.control.TableColumn;
+import javafx.scene.control.TableColumn.CellEditEvent;
 import javafx.scene.control.TableView;
 import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
-
+import javafx.scene.chart.PieChart.Data;
 import javafx.scene.control.Button;
 import javafx.scene.control.ButtonBar.ButtonData;
 
@@ -62,13 +64,16 @@ import javafx.scene.layout.Priority;
 import javafx.scene.text.Text;
 import javafx.stage.FileChooser;
 import javafx.util.Callback;
+import javafx.util.StringConverter;
+import util.FileManager;
 import util.Md5HashCode;
 import util.MyXMLReader;
 
 public class Controller implements Initializable {
 	final static String URLPath = "./UpdateURL";
 	final static String localConfigPath = "./Config/";
-
+	final static String versionPath = "./Version/";
+	
 	@FXML
 	MenuItem checkUpdateMenuItem;
 	@FXML
@@ -101,6 +106,10 @@ public class Controller implements Initializable {
 	@FXML
 	private TableColumn<Config, String> pathCol;
 	@FXML
+	private TableColumn<Config, String> hashCol;
+	@FXML
+	private TableColumn<Config, String> updatePathCol;
+	@FXML
 	private TableColumn<Config, String> updateMethodCol;
 
 	@FXML
@@ -126,12 +135,18 @@ public class Controller implements Initializable {
 		intiLoadLocalConfig();
 		initTable();
 		initButton();
+		//checkUpdate();
 	}
 
 	//读取本地配置文件
 	private void intiLoadLocalConfig() {
+		//存放版本的文件夹
+		File versionDir = new File(versionPath);
+		if(!versionDir.exists()) {
+			versionDir.mkdirs();
+		}
+		//存放配置文件的文件夹
 		File configDir = new File(localConfigPath);
-		//当文件夹不存在时，新建配置文件文件夹
 		if (!configDir.exists()) {
 			configDir.mkdir();
 		}
@@ -166,6 +181,7 @@ public class Controller implements Initializable {
 	}
 
 	private void initButton() {
+		//保存按钮响应事件
 		ensureButton.setOnAction((ActionEvent e) -> {
 			// 更新列表
 			int selectIndex = itemTable.getSelectionModel().getSelectedIndex();
@@ -174,6 +190,12 @@ public class Controller implements Initializable {
 			//System.out.println(fileName);
 			itemTable.getSelectionModel().getSelectedItem().setItem(version.getText());
 			configLL.get(selectIndex).clear();
+//			int updatePathColNum = dateTable.getColumns().indexOf(updatePathCol);
+//			for(Config config: configData) {
+//				System.out.println(dateTable.getColumns().get(updatePathColNum).getCellData(0));
+//				//config.setUpdatePath((String));
+//			}
+//			
 			configLL.get(selectIndex).addAll(configData);
 			
 			// 保存数据
@@ -185,7 +207,8 @@ public class Controller implements Initializable {
 			for (Config config : configData) {
 				Element file = filelist.addElement("File");
 				file.addAttribute("UpdateMethod", config.getUpdateMethod());
-				file.addAttribute("Hash", Md5HashCode.getHashCode(config.getPath()));
+				file.addAttribute("UpdatePath", config.getUpdatePath());
+				file.addAttribute("Hash", config.getHash());
 				file.addAttribute("Path", config.getPath());
 				file.addAttribute("Name", config.getName());
 			}
@@ -207,6 +230,7 @@ public class Controller implements Initializable {
 				e1.printStackTrace();
 			}
 		});
+		//另存为按钮响应事件
 		saveAsButton.setOnAction((ActionEvent e) -> {
 			FileChooser fileChooser = new FileChooser();
 			File file = fileChooser.showSaveDialog(null);
@@ -214,14 +238,16 @@ public class Controller implements Initializable {
 
 			}
 		});
+		//取消按钮响应事件
 		cancelButton.setOnAction((ActionEvent e) -> {
 			configData.clear();
 		});
+		//添加待更新文件按钮响应事件
 		addFileButton.setOnAction((ActionEvent e) -> {
 			FileChooser fileChooser = new FileChooser();
 			File file = fileChooser.showOpenDialog(null);
 			if (file != null) {
-				configData.add(new Config(file.getName(), file.getAbsolutePath(), ""));
+				configData.add(new Config(file.getName(), file.getAbsolutePath(), "", ""));
 			}
 		});
 	}
@@ -245,17 +271,60 @@ public class Controller implements Initializable {
 					break;
 				case SECONDARY:
 					MenuItem delete = new MenuItem("删除");
+					MenuItem createVersion = new MenuItem("生成版本");
+					//删除响应函数
 					delete.setOnAction((ActionEvent e) -> {
+						String fileName = itemTable.getSelectionModel().getSelectedItem().getItem();
+						File deleteFile = new File(localConfigPath+fileName+".xml");
+						if(deleteFile.exists()) {
+							deleteFile.delete();
+						}
 						configList.remove(itemTable.getSelectionModel().getSelectedIndex());
 					});
+					
+					//生成版本响应函数
+					createVersion.setOnAction((ActionEvent e) -> {
+						String fileName = itemTable.getSelectionModel().getSelectedItem().getItem();
+						File createFile = new File(localConfigPath+fileName+".xml");
+						if(createFile.exists()) {
+							//System.out.println("createVersion!");
+							File createVersionDir = new File(versionPath+fileName);
+							if(createVersionDir.exists())
+								FileManager.deleteFile(createVersionDir);
+							createVersionDir.mkdir();
+							//读取配置文件，将对应的选择带更新文件移动到此版本目录下面。
+							try {
+								//将配置文件copy到待更新目录下
+								Files.copy(createFile.toPath(),new File(createVersionDir.getPath()+"/"+createFile.getName()).toPath());
+							} catch (IOException e1) {
+								// TODO Auto-generated catch block
+								e1.printStackTrace();
+							}
+							ArrayList<Config> createVersionConfig = MyXMLReader.getXMlFile(createFile.getPath());
+							if(createVersionConfig!=null) {
+								for(Config config :createVersionConfig) {
+									File moveFile = new File(config.getPath());
+									if(moveFile.exists()) {
+										System.out.println("create");
+										try {
+											Files.copy(moveFile.toPath(),new File(createVersionDir.getPath()+"/"+moveFile.getName()).toPath());
+										} catch (IOException e1) {
+											// TODO Auto-generated catch block
+											e1.printStackTrace();
+										}
+									}
+								}
+							}
+						}
+					});
+					
 					ContextMenu taskContextMenu = new ContextMenu();
-					taskContextMenu.getItems().add(delete);
+					taskContextMenu.getItems().addAll(createVersion,delete);
 					cell.setContextMenu(taskContextMenu);
 					break;
 				case MIDDLE:
 					break;
-				default:
-					;
+				default: ;
 				}
 			});
 			return cell;
@@ -295,7 +364,7 @@ public class Controller implements Initializable {
 	private void initTable() {
 		// configData.add(new Config("name","path",""));
 		dateTable.setItems(configData);
-
+		dateTable.setEditable(true);
 //		configList.add(new ConfigListItem("ver1.0"));
 //		ObservableList<Config> list = FXCollections.observableArrayList();
 //		list.addAll(new Config("file1", "C:\\APP\\file1", "新增"), new Config("file2", "C:\\APP\\file2", "新增"));
@@ -310,13 +379,34 @@ public class Controller implements Initializable {
 
 		nameCol.setMinWidth(100);
 		nameCol.setSortable(false);
+		nameCol.setEditable(false);
 		nameCol.setCellFactory(new TaskCellFactory());
 		nameCol.setCellValueFactory(new PropertyValueFactory<>("name"));
 
 		pathCol.setMinWidth(100);
 		pathCol.setSortable(false);
+		pathCol.setEditable(false);
 		pathCol.setCellFactory(new TaskCellFactory());
 		pathCol.setCellValueFactory(new PropertyValueFactory<>("path"));
+		
+		hashCol.setMinWidth(100);
+		hashCol.setSortable(false);
+		hashCol.setEditable(false);
+		hashCol.setCellFactory(new TaskCellFactory());
+		hashCol.setCellValueFactory(new PropertyValueFactory<>("hash"));
+		
+		updatePathCol.setMinWidth(100);
+		updatePathCol.setSortable(false);
+		updatePathCol.setEditable(true);
+		//添加编辑提交相应函数
+		updatePathCol.setOnEditCommit(
+                (CellEditEvent<Config, String> t) -> {
+                    ( t.getTableView().getItems()
+                            .get(t.getTablePosition().getRow()))
+                            .setUpdatePath(t.getNewValue());
+                });
+		updatePathCol.setCellFactory(TextFieldTableCell.forTableColumn());
+		updatePathCol.setCellValueFactory(new PropertyValueFactory<>("updatePath"));
 
 		updateMethodCol.setMinWidth(100);
 		updateMethodCol.setSortable(false);
@@ -512,7 +602,7 @@ public class Controller implements Initializable {
 			this.comboBox = new ComboBox<>(items);
 
 			setContentDisplay(ContentDisplay.GRAPHIC_ONLY);
-
+			
 			comboBox.valueProperty().addListener(new ChangeListener<T>() {
 				@Override
 				public void changed(ObservableValue<? extends T> obs, T oldValue, T newValue) {
@@ -536,5 +626,4 @@ public class Controller implements Initializable {
 			}
 		}
 	}
-
 }

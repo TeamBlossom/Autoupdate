@@ -2,7 +2,6 @@
 
 <Info Version="ver1.0">
   <FileList>
-    <File UpdateMethod="新增" Hash="a24be943ee3e50152730c9a49d71fbb3" Path="C:\Users\Soleil\Documents\Tencent Files\1060312419\FileRecv\6ddffd09d2d7a12c.jpg" Name="6ddffd09d2d7a12c.jpg"/>
-    <File UpdateMethod="覆盖" Hash="59b75756a6010f0e3c73f8c069a0ea64" Path="C:\DATA\Git\Java\FileManager\JAVAFX\build.fxbuild" Name="build.fxbuild"/>
+    <File UpdateMethod="删除" UpdatePath="./资源" Hash="a0b1a001f11d29e3804dd286f34d2bea" Path="C:\Users\Soleil\Desktop\牧羊人\1.txt" Name="1.txt"/>
   </FileList>
 </Info>

@@ -32,7 +32,7 @@ public class MyXMLReader {
         InputStreamReader isr =null;
         try {
             in =new FileInputStream(path);
-            isr = new InputStreamReader(in, "UTF-8"); 
+            isr = new InputStreamReader(in, "UTF-8");  
             Document document = reader.read(isr);  
             Element rootElement = document.getRootElement();  
             for(Element file :  rootElement.element("FileList").elements()){  
@@ -40,6 +40,8 @@ public class MyXMLReader {
                 	Config config = new Config();
                 	config.setName(file.attributeValue("Name"));
                 	config.setPath(file.attributeValue("Path"));
+                	config.setHash(file.attributeValue("Hash"));
+                	config.setUpdatePath(file.attributeValue("UpdatePath"));
                 	config.setUpdateMethod(file.attributeValue("UpdateMethod"));
                 	configList.add(config);
                 }  

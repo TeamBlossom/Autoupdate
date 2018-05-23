@@ -10,9 +10,9 @@
 <?import javafx.scene.control.TextField?>
 <?import javafx.scene.layout.AnchorPane?>
 
-<AnchorPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="400.0" prefWidth="600.0" xmlns="http://javafx.com/javafx/8.0.141" xmlns:fx="http://javafx.com/fxml/1" fx:controller="application.Controller">
+<AnchorPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="543.0" prefWidth="781.0" xmlns="http://javafx.com/javafx/8.0.141" xmlns:fx="http://javafx.com/fxml/1" fx:controller="application.Controller">
    <children>
-      <MenuBar layoutY="2.0" prefHeight="25.0" prefWidth="600.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+      <MenuBar layoutY="2.0" prefHeight="25.0" prefWidth="629.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
         <menus>
           <Menu mnemonicParsing="false" text="配置文件">
             <items>
@@ -42,17 +42,19 @@
             </TableView>
             <TableView fx:id="dateTable" layoutX="124.0" layoutY="68.0" prefHeight="255.0" prefWidth="477.0" AnchorPane.bottomAnchor="50.0" AnchorPane.leftAnchor="123.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="50.0">
               <columns>
-                <TableColumn fx:id="nameCol" prefWidth="141.0" text="文件名称" />
-                <TableColumn fx:id="pathCol" prefWidth="170.0" text="文件路径" />
-                  <TableColumn fx:id="updateMethodCol" prefWidth="165.0" text="更新方式" />
+                <TableColumn fx:id="nameCol" prefWidth="130.0" text="文件名称" />
+                <TableColumn fx:id="pathCol" prefWidth="131.0" text="文件路径" />
+                  <TableColumn fx:id="hashCol" minWidth="0.0" prefWidth="141.0" text="哈希码" />
+                  <TableColumn fx:id="updatePathCol" prefWidth="162.0" text="更新路径" />
+                  <TableColumn fx:id="updateMethodCol" prefWidth="93.0" text="更新方式" />
               </columns>
             </TableView>
             <TextField fx:id="version" layoutX="195.0" layoutY="14.0" prefHeight="23.0" prefWidth="79.0" AnchorPane.leftAnchor="195.0" AnchorPane.topAnchor="14.0" />
             <Label layoutX="132.0" layoutY="18.0" prefHeight="15.0" prefWidth="54.0" text="配置版本" AnchorPane.leftAnchor="132.0" AnchorPane.topAnchor="18.0" />
             <Button fx:id="addFileButton" layoutX="142.0" layoutY="336.0" mnemonicParsing="false" text="添加更新文件" AnchorPane.bottomAnchor="14.0" AnchorPane.leftAnchor="142.0" />
-            <Button fx:id="ensureButton" layoutX="286.0" layoutY="336.0" mnemonicParsing="false" text="保存" AnchorPane.bottomAnchor="14.0" AnchorPane.leftAnchor="286.0" />
-            <Button fx:id="cancelButton" layoutX="514.0" layoutY="336.0" mnemonicParsing="false" text="取消" AnchorPane.bottomAnchor="14.0" AnchorPane.leftAnchor="514.0" />
-            <Button fx:id="saveAsButton" layoutX="378.0" layoutY="336.0" mnemonicParsing="false" text="另存为" AnchorPane.bottomAnchor="14.0" AnchorPane.leftAnchor="378.0" />
+            <Button fx:id="ensureButton" layoutX="351.0" layoutY="479.0" mnemonicParsing="false" text="保存" AnchorPane.bottomAnchor="14.0" AnchorPane.leftAnchor="351.0" />
+            <Button fx:id="cancelButton" layoutX="684.0" layoutY="479.0" mnemonicParsing="false" text="取消" AnchorPane.bottomAnchor="14.0" AnchorPane.leftAnchor="684.0" />
+            <Button fx:id="saveAsButton" layoutX="524.0" layoutY="479.0" mnemonicParsing="false" text="另存为" AnchorPane.bottomAnchor="14.0" AnchorPane.leftAnchor="524.0" />
          </children></AnchorPane>
    </children>
 </AnchorPane>
