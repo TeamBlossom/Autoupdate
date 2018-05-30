@@ -463,7 +463,6 @@ public class Controller implements Initializable {
 
 	// 检测更新响应事件
 	public void checkUpdateAction(ActionEvent e) throws InterruptedException {
-		System.out.println("work");
 		showUpdateDialog(checkUpdate());
 	}
 
@@ -595,10 +594,10 @@ public class Controller implements Initializable {
 		File updateURLFile = new File(updateURL.substring(8));
 		System.out.println(updateURL.substring(8));
 		System.out.println(updateURLFile.exists());
-		//System.out.println(updateURL.exists());
+		
 		if(updateURLFile.listFiles()!=null)
 		for(File f: updateURLFile.listFiles()) {
-			//System.out.println(f.getName());
+			System.out.println(f.getName());
 			if(f.getName().contains(".xml")) {
 				updateConfigHash = Md5HashCode.getHashCode(f.getPath());
 				break;
@@ -708,7 +707,21 @@ public class Controller implements Initializable {
 			});
 			downloadUpdateFiles();
 			Optional<Boolean> res = updatingDialog.showAndWait();
+			System.out.println("start");
+			System.out.println(res.get());
 			
+			System.out.println("start---update");
+			Process process;
+			try {
+				process = Runtime.getRuntime().exec("./update.exe");
+				process.waitFor();
+			} catch (IOException | InterruptedException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+			System.out.println("exit");
+			System.exit(0);
+		
 		}
 	}
 	
