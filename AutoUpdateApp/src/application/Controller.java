@@ -63,6 +63,7 @@ import javafx.scene.layout.GridPane;
 import javafx.scene.layout.Priority;
 import javafx.scene.text.Text;
 import javafx.stage.FileChooser;
+import javafx.stage.FileChooser.ExtensionFilter;
 import javafx.util.Callback;
 import javafx.util.StringConverter;
 import util.FileDownloader;
@@ -139,8 +140,12 @@ public class Controller implements Initializable {
 		intiLoadLocalConfig();
 		initTable();
 		initButton();
-		if(checkUpdate()) {
-			showUpdateDialog(true);
+		try {
+			if(checkUpdate()) {
+				showUpdateDialog(true);
+			}
+		} catch (Exception e) {
+			// TODO: handle exception
 		}
 	}
 
@@ -203,45 +208,34 @@ public class Controller implements Initializable {
 //			}
 //			
 			configLL.get(selectIndex).addAll(configData);
-			
+				
+			File cf = new File(localConfigPath+fileName+".xml");
+			cf.delete();
 			// 保存数据
-			Document document = DocumentHelper.createDocument();
-			Element root = document.addElement("Info");
-			root.addAttribute("Version", version.getText());
-
-			Element filelist = root.addElement("FileList");
-			for (Config config : configData) {
-				Element file = filelist.addElement("File");
-				file.addAttribute("UpdateMethod", config.getUpdateMethod());
-				file.addAttribute("UpdatePath", config.getUpdatePath());
-				file.addAttribute("Hash", config.getHash());
-				file.addAttribute("Path", config.getPath());
-				file.addAttribute("Name", config.getName());
-			}
-
-			try {
-				System.out.println("enter");
-				File cf = new File(localConfigPath+fileName+".xml");
-				cf.renameTo(new File(localConfigPath+version.getText()+".xml"));
-				cf = new File(localConfigPath+version.getText()+".xml");
-				// 创建输出流
-				FileOutputStream out = new FileOutputStream(cf);
-				// createPrettyPrint格式化xml并返回一个OutPutFormat对象
-				OutputFormat of = OutputFormat.createPrettyPrint();
-				// 创建一个XMLWriter对象
-				XMLWriter writer = new XMLWriter(out, of);
-				writer.write(document);
-				writer.close();
-			} catch (IOException e1) {
-				e1.printStackTrace();
-			}
+			saveXMLFile(localConfigPath+version.getText()+".xml");
+			
 		});
 		//另存为按钮响应事件
 		saveAsButton.setOnAction((ActionEvent e) -> {
 			FileChooser fileChooser = new FileChooser();
+			fileChooser.setInitialFileName(version.getText());
+			fileChooser.getExtensionFilters().add(new ExtensionFilter("XML", ".xml"));
+			fileChooser.setInitialDirectory(new File("./"));
 			File file = fileChooser.showSaveDialog(null);
-			if (file != null) {
-
+			if (file != null&&!file.exists()) {
+				//显示
+				itemTable.getItems().add(new ConfigListItem(version.getText()));	
+				ObservableList<Config> newConfig = FXCollections.observableArrayList();
+				newConfig.addAll(configData);
+				configLL.add(newConfig);
+				for(Config c:configLL.get(1)) {
+					System.out.println(c.getName());
+				}
+				//保存文件
+				saveXMLFile(file.getPath());
+				
+				System.out.println("xml: "+file.getName());
+				System.out.println("path: "+file.getPath());
 			}
 		});
 		//取消按钮响应事件
@@ -269,6 +263,10 @@ public class Controller implements Initializable {
 					int selectIndex = itemTable.getSelectionModel().getSelectedIndex();
 					configData.clear();
 					configData.addAll(configLL.get(selectIndex));
+					
+					for(Config c: configData) {
+						System.out.println("double click:  " +c.getName());
+					}
 					version.setText(itemTable.getSelectionModel().getSelectedItem().getItem());
 				}
 				MouseButton button = t.getButton();
@@ -496,7 +494,14 @@ public class Controller implements Initializable {
 	// 打开配置文件响应事件
 	public void openConfAction(ActionEvent e) {
 		FileChooser fileChooser = new FileChooser();
+		fileChooser.setInitialDirectory(new File("./"));
+		fileChooser.getExtensionFilters().add(new ExtensionFilter("XML", "*.xml"));
 		File file = fileChooser.showOpenDialog(null);
+		ObservableList<Config> newConfig = FXCollections.observableArrayList();
+		newConfig.addAll(MyXMLReader.getXMlFile(file.getPath()));
+		
+		configList.add(new ConfigListItem(file.getName().substring(0, file.getName().length()-4)));
+		configLL.add(newConfig);
 	}
 
 	// 退出响应事件
@@ -504,6 +509,41 @@ public class Controller implements Initializable {
 		System.exit(0);
 	}
 
+	private void saveXMLFile(String path) {
+		Document document = DocumentHelper.createDocument();
+		Element root = document.addElement("Info");
+		root.addAttribute("Version", version.getText());
+
+		Element filelist = root.addElement("FileList");
+		for (Config config : configData) {
+			Element file = filelist.addElement("File");
+			file.addAttribute("UpdateMethod", config.getUpdateMethod());
+			file.addAttribute("UpdatePath", config.getUpdatePath());
+			file.addAttribute("Hash", config.getHash());
+			file.addAttribute("Path", config.getPath());
+			file.addAttribute("Name", config.getName());
+		}
+
+		try {
+			
+			File cf = new File(path);
+			if(!cf.exists()) {
+				cf.createNewFile();
+			}
+			// 创建输出流
+			FileOutputStream out = new FileOutputStream(cf);
+			// createPrettyPrint格式化xml并返回一个OutPutFormat对象
+			OutputFormat of = OutputFormat.createPrettyPrint();
+			// 创建一个XMLWriter对象
+			XMLWriter writer = new XMLWriter(out, of);
+			writer.write(document);
+			writer.close();
+		} catch (IOException e1) {
+			e1.printStackTrace();
+		}
+	}
+	
+	
 	// ComboBoxTableCell
 	public static class LiveComboBoxTableCell<S, T> extends TableCell<S, T> {
 
