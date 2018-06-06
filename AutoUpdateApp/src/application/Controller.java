@@ -707,21 +707,34 @@ public class Controller implements Initializable {
 			});
 			downloadUpdateFiles();
 			Optional<Boolean> res = updatingDialog.showAndWait();
-			System.out.println("start");
 			System.out.println(res.get());
 			
-			System.out.println("start---update");
-			Process process;
-			try {
-				process = Runtime.getRuntime().exec("./update.exe");
-				process.waitFor();
-			} catch (IOException | InterruptedException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
-			System.out.println("exit");
-			System.exit(0);
-		
+
+			new Thread() {
+				public void run() {
+					Process process;
+					try {
+						process = Runtime.getRuntime().exec("./update.exe");
+						process.waitFor();
+					} catch (IOException | InterruptedException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					}
+				};
+			}.start();
+			
+			new Thread() {
+				public void run() {
+					try {
+						sleep(1000);
+					} catch (InterruptedException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					}
+					System.exit(0);	
+				};
+			}.start();
+			
 		}
 	}
 	
