@@ -20,6 +20,8 @@ public class FileDownloader {
 		byte[] getData = readInputStream(inputStream);
 		String xmlName = new String(getData);
 		
+		System.out.println("xmlName:   "+xmlName);
+		
 		int i;
 		while((i=xmlName.indexOf('\n'))>0) {
 			//System.out.println(xmlName.substring(0,i));

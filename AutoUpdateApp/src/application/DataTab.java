@@ -75,14 +75,14 @@ public class DataTab extends Tab{
 		nameCol.setCellValueFactory(new PropertyValueFactory<>("name"));
 
 		pathCol = new TableColumn<>("ÎÄ¼þÂ·¾¶");
-		pathCol.setMinWidth(100);
+		pathCol.setMinWidth(120);
 		pathCol.setSortable(false);
 		pathCol.setEditable(false);
 		pathCol.setCellFactory(new TaskCellFactory());
 		pathCol.setCellValueFactory(new PropertyValueFactory<>("path"));
 		
 		hashCol = new TableColumn<>("¹þÏ£Âë");
-		hashCol.setMinWidth(100);
+		hashCol.setMinWidth(230);
 		hashCol.setSortable(false);
 		hashCol.setEditable(false);
 		hashCol.setCellFactory(new TaskCellFactory());
