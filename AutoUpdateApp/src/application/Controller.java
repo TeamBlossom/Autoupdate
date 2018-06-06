@@ -15,6 +15,7 @@ import java.io.OutputStreamWriter;
 import java.net.URL;
 import java.nio.file.Files;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Optional;
 import java.util.ResourceBundle;
 
@@ -23,7 +24,6 @@ import org.dom4j.DocumentHelper;
 import org.dom4j.Element;
 import org.dom4j.io.OutputFormat;
 import org.dom4j.io.XMLWriter;
-
 
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
@@ -43,7 +43,8 @@ import javafx.scene.control.Dialog;
 import javafx.scene.control.Label;
 import javafx.scene.control.MenuItem;
 import javafx.scene.control.ProgressBar;
-
+import javafx.scene.control.Tab;
+import javafx.scene.control.TabPane;
 import javafx.scene.control.TableCell;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableColumn.CellEditEvent;
@@ -101,22 +102,10 @@ public class Controller implements Initializable {
 	@FXML
 	Button addFileButton;
 
+	
 	@FXML
-	TextField version;
-
-	@FXML
-	private TableView<Config> dateTable;
-	@FXML
-	private TableColumn<Config, String> nameCol;
-	@FXML
-	private TableColumn<Config, String> pathCol;
-	@FXML
-	private TableColumn<Config, String> hashCol;
-	@FXML
-	private TableColumn<Config, String> updatePathCol;
-	@FXML
-	private TableColumn<Config, String> updateMethodCol;
-
+	private TabPane tabPane;
+	
 	@FXML
 	private TableView<ConfigListItem> itemTable;
 	@FXML
@@ -130,14 +119,18 @@ public class Controller implements Initializable {
 	// 配置文件列表..左边的
 	ObservableList<ConfigListItem> configList = FXCollections.observableArrayList();
 
-	// 一个配置文件的列表...右边的
-	ObservableList<Config> configData = FXCollections.observableArrayList();
+//	// 一个配置文件的列表...右边的
+//	ObservableList<Config> configData = FXCollections.observableArrayList();
 
+	//map映射tab
+	HashMap<String, Tab> tabMap = new HashMap<>();
+	
 	@Override
 	public void initialize(URL arg0, ResourceBundle arg1) {
+		
 		// TODO Auto-generated method stub
-		intiWebURL();
-		intiLoadLocalConfig();
+		initWebURL();
+		initLoadLocalConfig();
 		initTable();
 		initButton();
 		try {
@@ -150,7 +143,7 @@ public class Controller implements Initializable {
 	}
 
 	//读取本地配置文件
-	private void intiLoadLocalConfig() {
+	private void initLoadLocalConfig() {
 		//存放版本的文件夹
 		File versionDir = new File(versionPath);
 		if(!versionDir.exists()) {
@@ -175,7 +168,7 @@ public class Controller implements Initializable {
 		}
 	}
 	
-	private void intiWebURL() {
+	private void initWebURL() {
 		try {
 			if (new File(URLPath).exists()) {
 				BufferedReader in = new BufferedReader(new InputStreamReader(new FileInputStream(URLPath)));
@@ -191,42 +184,57 @@ public class Controller implements Initializable {
 		}
 	}
 
+	// 初始化table
+	private void initTable() {
+		itemTable.setItems(configList);
+
+		configItemCol.setMinWidth(100);
+		configItemCol.setSortable(false);
+		configItemCol.setCellFactory(new ItemCellFactory());
+		configItemCol.setCellValueFactory(new PropertyValueFactory<>("item"));
+	}
+	
+	
 	private void initButton() {
 		//保存按钮响应事件
 		ensureButton.setOnAction((ActionEvent e) -> {
-			// 更新列表
-			int selectIndex = itemTable.getSelectionModel().getSelectedIndex();
-			// 更新列表的
-			String fileName = itemTable.getSelectionModel().getSelectedItem().getItem();
-			//System.out.println(fileName);
-			itemTable.getSelectionModel().getSelectedItem().setItem(version.getText());
+			DataTab dataTab = (DataTab) tabPane.getSelectionModel().getSelectedItem();
+			String oldName = dataTab.getHisName();
+			System.out.println("tabName:   "+dataTab.getText());
+			dataTab.setHisName(dataTab.getTextName());
+			dataTab.setText(dataTab.getTextName());
+			int selectIndex = 0;
+			for(;selectIndex<itemTable.getItems().size();selectIndex++) {
+				if(itemTable.getItems().get(selectIndex).getItem().equals(oldName))
+				{
+					System.out.println("itemName:   "+dataTab.getTextName());
+					itemTable.getItems().get(selectIndex).setItem(dataTab.getTextName());
+					break;
+				}
+			}
+			System.out.println("selectindex:    "+selectIndex);
 			configLL.get(selectIndex).clear();
-//			int updatePathColNum = dateTable.getColumns().indexOf(updatePathCol);
-//			for(Config config: configData) {
-//				System.out.println(dateTable.getColumns().get(updatePathColNum).getCellData(0));
-//				//config.setUpdatePath((String));
-//			}
-//			
-			configLL.get(selectIndex).addAll(configData);
-				
-			File cf = new File(localConfigPath+fileName+".xml");
+			configLL.get(selectIndex).addAll(dataTab.getTableData());
+			
+			File cf = new File(localConfigPath+oldName+".xml");
 			cf.delete();
 			// 保存数据
-			saveXMLFile(localConfigPath+version.getText()+".xml");
-			
+			saveXMLFile(localConfigPath+dataTab.getTextName()+".xml");	
 		});
 		//另存为按钮响应事件
 		saveAsButton.setOnAction((ActionEvent e) -> {
+			DataTab dataTab = (DataTab) tabPane.getSelectionModel().getSelectedItem();
+			
 			FileChooser fileChooser = new FileChooser();
-			fileChooser.setInitialFileName(version.getText());
+			fileChooser.setInitialFileName(dataTab.getTextName());
 			fileChooser.getExtensionFilters().add(new ExtensionFilter("XML", ".xml"));
 			fileChooser.setInitialDirectory(new File("./"));
 			File file = fileChooser.showSaveDialog(null);
 			if (file != null&&!file.exists()) {
 				//显示
-				itemTable.getItems().add(new ConfigListItem(version.getText()));	
+				itemTable.getItems().add(new ConfigListItem(dataTab.getTextName()));	
 				ObservableList<Config> newConfig = FXCollections.observableArrayList();
-				newConfig.addAll(configData);
+				newConfig.addAll(dataTab.getTableData());
 				configLL.add(newConfig);
 				for(Config c:configLL.get(1)) {
 					System.out.println(c.getName());
@@ -240,14 +248,15 @@ public class Controller implements Initializable {
 		});
 		//取消按钮响应事件
 		cancelButton.setOnAction((ActionEvent e) -> {
-			configData.clear();
+			System.out.println("cancel");
 		});
 		//添加待更新文件按钮响应事件
 		addFileButton.setOnAction((ActionEvent e) -> {
+			DataTab dataTab = (DataTab) tabPane.getSelectionModel().getSelectedItem();
 			FileChooser fileChooser = new FileChooser();
 			File file = fileChooser.showOpenDialog(null);
 			if (file != null) {
-				configData.add(new Config(file.getName(), file.getAbsolutePath(), "", ""));
+				dataTab.addTableData(new Config(file.getName(), file.getAbsolutePath(), "", ""));
 			}
 		});
 	}
@@ -259,15 +268,20 @@ public class Controller implements Initializable {
 			TextFieldTableCell<ConfigListItem, String> cell = new TextFieldTableCell<>();
 			cell.setOnMouseClicked((MouseEvent t) -> {
 				if (t.getClickCount() == 2) {
-					// 响应事件，将对应的配置文件信息显示到dateTable中。
+					// 响应事件，将对应的配置文件信息显示。
 					int selectIndex = itemTable.getSelectionModel().getSelectedIndex();
-					configData.clear();
-					configData.addAll(configLL.get(selectIndex));
-					
-					for(Config c: configData) {
-						System.out.println("double click:  " +c.getName());
+					String name = itemTable.getSelectionModel().getSelectedItem().getItem();
+					if(!tabMap.containsKey(name)){
+//						for(Config c:configLL.get(selectIndex)) {
+//							System.out.println("name:   "+c.getName());
+//						}
+						DataTab dataTab = new DataTab(configLL.get(selectIndex), name);
+						tabMap.put(name, dataTab);
+						tabPane.getTabs().add(dataTab);
+						tabPane.getSelectionModel().select(dataTab);
 					}
-					version.setText(itemTable.getSelectionModel().getSelectedItem().getItem());
+					tabPane.getSelectionModel().select(tabMap.get(name));
+					//U.N
 				}
 				MouseButton button = t.getButton();
 				switch (button) {
@@ -284,6 +298,8 @@ public class Controller implements Initializable {
 							deleteFile.delete();
 						}
 						configList.remove(itemTable.getSelectionModel().getSelectedIndex());
+						tabPane.getTabs().remove(tabMap.get(fileName));
+						tabMap.remove(fileName);
 					});
 					
 					//生成版本响应函数
@@ -335,94 +351,6 @@ public class Controller implements Initializable {
 		}
 	}
 
-	// 行响应事件(其实是cell的响应事件)
-	private class TaskCellFactory implements Callback<TableColumn<Config, String>, TableCell<Config, String>> {
-		@Override
-		public TableCell<Config, String> call(TableColumn<Config, String> param) {
-			TextFieldTableCell<Config, String> cell = new TextFieldTableCell<>();
-			cell.setOnMouseClicked((MouseEvent t) -> {
-				MouseButton button = t.getButton();
-				switch (button) {
-				case PRIMARY:
-					break;
-				case SECONDARY:
-					MenuItem delete = new MenuItem("删除");
-					delete.setOnAction((ActionEvent e) -> {
-						configData.remove(dateTable.getSelectionModel().getSelectedIndex());
-					});
-					ContextMenu taskContextMenu = new ContextMenu();
-					taskContextMenu.getItems().add(delete);
-					cell.setContextMenu(taskContextMenu);
-					break;
-				case MIDDLE:
-					break;
-				default:
-					;
-				}
-			});
-			return cell;
-		}
-	}
-
-	// 初始化table,两个table
-	private void initTable() {
-		// configData.add(new Config("name","path",""));
-		dateTable.setItems(configData);
-		dateTable.setEditable(true);
-//		configList.add(new ConfigListItem("ver1.0"));
-//		ObservableList<Config> list = FXCollections.observableArrayList();
-//		list.addAll(new Config("file1", "C:\\APP\\file1", "新增"), new Config("file2", "C:\\APP\\file2", "新增"));
-//		configLL.add(list);
-
-		itemTable.setItems(configList);
-
-		configItemCol.setMinWidth(100);
-		configItemCol.setSortable(false);
-		configItemCol.setCellFactory(new ItemCellFactory());
-		configItemCol.setCellValueFactory(new PropertyValueFactory<>("item"));
-
-		nameCol.setMinWidth(100);
-		nameCol.setSortable(false);
-		nameCol.setEditable(false);
-		nameCol.setCellFactory(new TaskCellFactory());
-		nameCol.setCellValueFactory(new PropertyValueFactory<>("name"));
-
-		pathCol.setMinWidth(100);
-		pathCol.setSortable(false);
-		pathCol.setEditable(false);
-		pathCol.setCellFactory(new TaskCellFactory());
-		pathCol.setCellValueFactory(new PropertyValueFactory<>("path"));
-		
-		hashCol.setMinWidth(100);
-		hashCol.setSortable(false);
-		hashCol.setEditable(false);
-		hashCol.setCellFactory(new TaskCellFactory());
-		hashCol.setCellValueFactory(new PropertyValueFactory<>("hash"));
-		
-		updatePathCol.setMinWidth(100);
-		updatePathCol.setSortable(false);
-		updatePathCol.setEditable(true);
-		//添加编辑提交相应函数
-		updatePathCol.setOnEditCommit(
-                (CellEditEvent<Config, String> t) -> {
-                    ( t.getTableView().getItems()
-                            .get(t.getTablePosition().getRow()))
-                            .setUpdatePath(t.getNewValue());
-                });
-		updatePathCol.setCellFactory(TextFieldTableCell.forTableColumn());
-		updatePathCol.setCellValueFactory(new PropertyValueFactory<>("updatePath"));
-
-		updateMethodCol.setMinWidth(100);
-		updateMethodCol.setSortable(false);
-		updateMethodCol.setCellFactory(new Callback<TableColumn<Config, String>, TableCell<Config, String>>() {
-
-			@Override
-			public TableCell<Config, String> call(TableColumn<Config, String> param) {
-				return new LiveComboBoxTableCell<>(FXCollections.observableArrayList("覆盖", "新增", "删除"));
-			}
-		});
-		updateMethodCol.setCellValueFactory(new PropertyValueFactory<>("updateMethod"));
-	}
 
 	// 设置更新网址事件
 	public void setUpdateURLAction(ActionEvent e) {
@@ -468,7 +396,6 @@ public class Controller implements Initializable {
 
 	// 新建配置文件响应事件
 	public void newConfAction(ActionEvent e) throws IOException {
-		// System.out.println("new");
 		File file = new File(localConfigPath);
 		String path = "新建配置文件";
 		int i = 1;
@@ -488,6 +415,7 @@ public class Controller implements Initializable {
 		}
 		configLL.add(FXCollections.observableArrayList());
 		configList.add(new ConfigListItem(path));
+		System.out.println("yessss");
 	}
 
 	// 打开配置文件响应事件
@@ -509,12 +437,14 @@ public class Controller implements Initializable {
 	}
 
 	private void saveXMLFile(String path) {
+		DataTab dataTab = (DataTab) tabPane.getSelectionModel().getSelectedItem();
+		
 		Document document = DocumentHelper.createDocument();
 		Element root = document.addElement("Info");
-		root.addAttribute("Version", version.getText());
+		root.addAttribute("Version", dataTab.getTextName());
 
 		Element filelist = root.addElement("FileList");
-		for (Config config : configData) {
+		for (Config config : dataTab.getTableData()) {
 			Element file = filelist.addElement("File");
 			file.addAttribute("UpdateMethod", config.getUpdateMethod());
 			file.addAttribute("UpdatePath", config.getUpdatePath());
@@ -542,44 +472,8 @@ public class Controller implements Initializable {
 		}
 	}
 	
-	
-	// ComboBoxTableCell
-	public static class LiveComboBoxTableCell<S, T> extends TableCell<S, T> {
-
-		private final ComboBox<T> comboBox;
-
-		public LiveComboBoxTableCell(ObservableList<T> items) {
-			this.comboBox = new ComboBox<>(items);
-
-			setContentDisplay(ContentDisplay.GRAPHIC_ONLY);
-			
-			comboBox.valueProperty().addListener(new ChangeListener<T>() {
-				@Override
-				public void changed(ObservableValue<? extends T> obs, T oldValue, T newValue) {
-					// attempt to update property:
-					ObservableValue<T> property = getTableColumn().getCellObservableValue(getIndex());
-					if (property instanceof WritableValue) {
-						((WritableValue<T>) property).setValue(newValue);
-					}
-				}
-			});
-		}
-
-		@Override
-		public void updateItem(T item, boolean empty) {
-			super.updateItem(item, empty);
-			if (empty) {
-				setGraphic(null);
-			} else {
-				comboBox.setValue(item);
-				setGraphic(comboBox);
-			}
-		}
-	}
-	
 	//检测更新函数
 	private boolean checkUpdate() {
-		
 		//获取本地配置文件哈希码
 		File localConfigFile = new File("./Config");
 		if(localConfigFile.listFiles()!=null)
@@ -628,15 +522,10 @@ public class Controller implements Initializable {
 		textArea.setEditable(false);
 		textArea.setWrapText(true);
 
-//		String localConfHash = "a4tr12ginalpoca";
-//		String updateConfHash = "4vjiapask45xna";
-
 		GridPane gridPane = new GridPane();
 		gridPane.add(isNewVer, 0, 0);
 		gridPane.add(localVer, 0, 1);
 		gridPane.add(updateVer, 0, 2);
-		// gridPane.add(textArea, 0, 4);
-		// gridPane.add(updateInfo, 0, 5);
 
 		GridPane.setVgrow(textArea, Priority.ALWAYS);
 		GridPane.setHgrow(textArea, Priority.ALWAYS);

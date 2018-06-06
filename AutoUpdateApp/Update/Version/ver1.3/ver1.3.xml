@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<Info Version="ver1.3">
+  <FileList>
+    <File UpdateMethod="新增" UpdatePath="./" Hash="986264020f5ac3e5351c4d962125617f" Path="C:\Users\Soleil\Desktop\牧羊人\delete.txt" Name="delete.txt"/>
+    <File UpdateMethod="删除" UpdatePath="./" Hash="8e7a94e592685b80c6f399ad4564eb3d" Path="C:\Users\Soleil\Desktop\牧羊人\1.txt" Name="1.txt"/>
+  </FileList>
+</Info>

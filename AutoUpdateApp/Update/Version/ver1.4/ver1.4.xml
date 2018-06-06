@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<Info Version="ver1.4">
+  <FileList>
+    <File UpdateMethod="新增" UpdatePath="./" Hash="f5be288a5f008ab2ecd84af048edb0a" Path="C:\Users\Soleil\Desktop\牧羊人\add.txt" Name="add.txt"/>
+    <File UpdateMethod="删除" UpdatePath="./" Hash="986264020f5ac3e5351c4d962125617f" Path="C:\Users\Soleil\Desktop\牧羊人\delete.txt" Name="delete.txt"/>
+    <File UpdateMethod="新增" UpdatePath="./" Hash="299df0f6c1dc774b91c14b95a60375d0" Path="C:\Users\Soleil\Desktop\牧羊人\cover.txt" Name="cover.txt"/>
+  </FileList>
+</Info>

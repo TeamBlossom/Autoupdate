@@ -7,6 +7,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
 import java.net.URLConnection;
+import java.util.ArrayList;
 
 public class FileDownloader {
 	public static String xmlFileDownloader(String urlStr) throws IOException  {
@@ -18,9 +19,18 @@ public class FileDownloader {
 		// 获取自己数组
 		byte[] getData = readInputStream(inputStream);
 		String xmlName = new String(getData);
-		//System.out.println(xmlName);
+		
+		int i;
+		while((i=xmlName.indexOf('\n'))>0) {
+			//System.out.println(xmlName.substring(0,i));
+			String name = xmlName.substring(0,i);
+			if(name.indexOf("ver")>=0&&name.indexOf(".xml")>=0)
+				return name;
+			xmlName = xmlName.substring(i+1,xmlName.length());
+		}
+		//System.out.println("xmlName:  "+xmlName);
 		//获取ver.*.xml文件名称
-		return xmlName.substring(xmlName.indexOf("ver"), xmlName.indexOf(".xml")+4);
+		return null;
 	}
 	
 	
@@ -38,15 +48,15 @@ public class FileDownloader {
 		if (!saveDir.exists()) {
 			saveDir.mkdirs();
 		}
-		File file = new File(saveDir + File.separator + fileName);
+		File file = new File(savePath + fileName);
+		file.createNewFile();
 		FileOutputStream fos = new FileOutputStream(file);
 		fos.write(getData);
-		if (fos != null) {
-			fos.close();
-		}
-		if (inputStream != null) {
-			inputStream.close();
-		}
+		
+		fos.close();
+		
+		inputStream.close();
+		
 		System.out.println("info:" + url + " download success");
 	}
 
@@ -61,11 +71,4 @@ public class FileDownloader {
 		return bos.toByteArray();
 	}
 	
-	
-//	public static void main(String[] args) throws IOException {
-////           downLoadFromUrl("file:///C:/DATA/Git/Java/Autoupdate/AutoUpdateApp/Update/Version/Newest/",
-////                   "1","C://Download/");
-//           xmlFileDownloader("file:///C:/DATA/Git/Java/Autoupdate/AutoUpdateApp/Update/Version/Newest/",
-//                   "1","C://Download/");
-//   }
 }
