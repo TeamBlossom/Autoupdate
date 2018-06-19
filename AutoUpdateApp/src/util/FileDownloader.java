@@ -36,7 +36,7 @@ public class FileDownloader {
 	}
 	
 	
-	public static void downLoadFromUrl(String urlStr, String fileName, String savePath) throws IOException {
+	public static boolean downLoadFromUrl(String urlStr, String fileName, String savePath) throws IOException {
 		URL url = new URL(urlStr);
 		URLConnection urlConnection = url.openConnection();
 		urlConnection.connect();
@@ -51,15 +51,19 @@ public class FileDownloader {
 			saveDir.mkdirs();
 		}
 		File file = new File(savePath + fileName);
-		file.createNewFile();
-		FileOutputStream fos = new FileOutputStream(file);
-		fos.write(getData);
+		if(file.createNewFile()){
+			FileOutputStream fos = new FileOutputStream(file);
+			fos.write(getData);
+			
+			fos.close();
+			inputStream.close();
+			
+			System.out.println("info:" + url + " download success");
+			
+			return true;
+		}
 		
-		fos.close();
-		
-		inputStream.close();
-		
-		System.out.println("info:" + url + " download success");
+		return false;
 	}
 
 	private static byte[] readInputStream(InputStream inputStream) throws IOException {

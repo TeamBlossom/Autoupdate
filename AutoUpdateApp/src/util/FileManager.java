@@ -3,7 +3,7 @@ package util;
 import java.io.File;
 
 public class FileManager {
-	public static void deleteFile(File file) {
+	public static boolean deleteFile(File file) {
 		if(file.exists()) {
 			if(file.isDirectory()) {
 				if(file.listFiles()!=null) {
@@ -12,8 +12,12 @@ public class FileManager {
 					}
 				}
 			}
-			file.delete();
+			if(file.delete())
+				return true;
+			else 
+				return false;
 		}
+		return true;
 	}
 
 }
